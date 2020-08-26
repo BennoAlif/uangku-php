@@ -1,0 +1,15 @@
+.my-primary{
+    background-color: #3F52A1;
+}
+
+.my-danger{
+    background-color: #FD786F;
+}
+
+.my-text-danger{
+    color: #FD786F;
+}
+
+.my-text-success{
+    color: #9AE2C0;
+}
