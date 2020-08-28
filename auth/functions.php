@@ -7,20 +7,12 @@ function dbConnect()
     return $db;
 }
 
-// function getListKategori()
-// {
-//     $db = dbConnect();
-//     if ($db->connect_errno == 0) {
-//         $res = $db->query("SELECT  * FROM kategori ORDER BY IdKategori");
-//         if ($res) {
-//             $data = $res->fetch_all(MYSQLI_ASSOC);
-//             $res->free();
-//             return $data;
-//         } else
-//             return FALSE;
-//     } else
-//         return FALSE;
-// }
+function rupiah($angka){
+	
+	$hasil_rupiah = "Rp " . number_format($angka,2,',','.');
+	return $hasil_rupiah;
+ 
+}
 
 function showError($message)
 {

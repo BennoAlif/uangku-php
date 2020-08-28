@@ -181,7 +181,7 @@
             e.preventDefault()
             let nama_kategori = $('#nama').val()
             let tipe = $("input[name='tipe']:checked").val();
-            if (nama_kategori == '' && tipe == undefined) {
+            if (nama_kategori == '' || tipe == undefined) {
                 Swal.fire(
                     'Warning!',
                     'Pastikan Semua Data sudah terisi',

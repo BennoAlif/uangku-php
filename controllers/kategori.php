@@ -25,5 +25,5 @@ if ($type == "delete") {
 } else if ($type == "create") {
     $nama_kategori = $_POST["nama_kategori"];
     $tipe = $_POST["tipe"];
-    $db->query("INSERT into kategori (nama_kategori, tipe) VALUES ('$nama_kategori', '$tipe')");
+    $db->query("INSERT INTO kategori (nama_kategori, tipe) VALUES ('$nama_kategori', '$tipe')");
 }
