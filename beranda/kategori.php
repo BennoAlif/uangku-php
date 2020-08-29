@@ -121,6 +121,11 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     <script>
+        let namaPengguna = '<?= $_SESSION["nama"] ?>';
+        let idPengguna = '<?= $_SESSION["idPengguna"] ?>';
+    </script>
+    <script src="../assets/app.js"></script>
+    <script>
         $(document).ready(function() {
             let currentId
             $('#table_id').DataTable();
@@ -232,7 +237,7 @@
                     type: "update",
                     id: currentId,
                     nama_kategori: $("#editNama").val(),
-                    tipe : $("input[name='editTipe']:checked").val()
+                    tipe: $("input[name='editTipe']:checked").val()
                 },
                 success: function(data) {
                     Swal.fire({

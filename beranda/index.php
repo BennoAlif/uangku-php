@@ -370,6 +370,11 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/rowreorder/1.2.7/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.2.5/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script>
+        let namaPengguna = '<?= $_SESSION["nama"] ?>';
+        let idPengguna = '<?= $_SESSION["idPengguna"] ?>';
+    </script>
+    <script src="../assets/app.js"></script>
 
     <script>
         $(document).ready(function() {

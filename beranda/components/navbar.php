@@ -23,11 +23,11 @@ if (!isset($_SESSION["idPengguna"])) {
         </ul>
         <span class="my-2 my-lg-0">
             <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <?php echo $_SESSION["nama"]; ?>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#exampleModal">Ubah kata sandi</a>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#exampleModal">Ubah data diri</a>
                     <a class="dropdown-item" href="../auth/logout.php">Keluar</a>
                 </div>
             </div>
@@ -47,17 +47,31 @@ if (!isset($_SESSION["idPengguna"])) {
             <form>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="new-password">Kata Sandi Baru</label>
-                        <input type="password" class="form-control" id="new-password">
+                        <label for="ubah-nama">Nama</label>
+                        <input type="text" class="form-control" id="ubah-nama" value="<?= $_SESSION["nama"] ?>">
                     </div>
-                    <div class="form-group">
-                        <label for="old-password">Kata Sandi Lama</label>
-                        <input type="password" class="form-control" id="old-password">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="togglePass">
+                        <label class="custom-control-label" for="togglePass">Ubah kata sandi?</label>
+                    </div>
+                    <div class="gantiPassword">
+                        <div class="form-group">
+                            <label for="old-password">Kata Sandi Lama</label>
+                            <input type="password" class="form-control" id="old-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-password">Kata Sandi Baru</label>
+                            <input type="password" class="form-control" id="new-password">
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="text-center">
+                        <button type="button" class="btn btn-danger" id="hapusPengguna">Hapus akun</button>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-primary" id="ubah-pengguna">Save changes</button>
                 </div>
             </form>
         </div>
