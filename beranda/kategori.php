@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kategori</title>
+    <link rel="icon" type="image/png" href="../assets/icon.png"/>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
@@ -61,7 +62,7 @@
                                     $data = $res->fetch_all(MYSQLI_ASSOC);
                                     foreach ($data as $val) {
                                     ?>
-                                        <tr class="item<?= $val['id'] ?>">
+                                        <tr class="item<?= $val['id'] ?>" style="display: <?= $val['tipe'] == "terbatas" ? "none" : "table-row" ?>;">
                                             <td><?php echo $val["nama_kategori"] ?></td>
                                             <td class="<?= $val['tipe'] == "pemasukan" ? "text-success" : "text-danger" ?>"><?php echo $val["tipe"] ?></td>
                                             <td>
@@ -132,21 +133,14 @@
         });
 
         function deleteAction(id) {
-            const swalWithBootstrapButtons = Swal.mixin({
-                customClass: {
-                    confirmButton: 'btn btn-success',
-                    cancelButton: 'btn btn-danger'
-                },
-                buttonsStyling: false
-            })
             Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
+                title: 'Apakah anda yakin?',
+                text: "Anda tidak akan dapat mengembalikan ini!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonText: 'Ya, hapus!'
             }).then((result) => {
                 if (result.value) {
                     $.ajax({
@@ -157,21 +151,34 @@
                             type: 'delete'
                         },
                         success: function(data) {
-                            swalWithBootstrapButtons.fire(
-                                'Deleted!',
-                                'Your data has been deleted.',
-                                'success'
-                            );
-                            $('.item' + id).fadeOut(1500, function() {
-                                $(this).remove();
-                            });
+                            let datas = JSON.parse(data)
+                            if (datas.status == "success") {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Kategori berhasil dihapus',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                                $('.item' + id).fadeOut(1500, function() {
+                                    $(this).remove();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Kategori gagal dihapus',
+                                    text: 'Kategori gagal dihapus dikarenakan ada transaksi di kategori ini',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                            }
                         },
                         error: function(data) {
-                            swalWithBootstrapButtons.fire(
-                                'Gagal!',
-                                'Failed to delete your data.',
-                                'error'
-                            );
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Transaksi gagal dihapus',
+                                showConfirmButton: false,
+                                timer: 2000
+                            })
                         }
                     });
                 }
@@ -188,7 +195,7 @@
             let tipe = $("input[name='tipe']:checked").val();
             if (nama_kategori == '' || tipe == undefined) {
                 Swal.fire(
-                    'Warning!',
+                    "Peringatan!",
                     'Pastikan Semua Data sudah terisi',
                     'warning'
                 );
@@ -204,7 +211,7 @@
                     success: function(data) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Your work has been saved',
+                            title: 'Transaksi berhasil disimpan',
                             showConfirmButton: false,
                             timer: 1500
                         })
@@ -213,11 +220,12 @@
                         }, 1600);
                     },
                     error: function(data) {
-                        swalWithBootstrapButtons.fire(
-                            'Gagal!',
-                            'Failed to add data',
-                            'error'
-                        );
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal menyimpan transaksi!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
                     }
                 })
             }
@@ -230,34 +238,45 @@
 
         $("#ubah").on('click', function(e) {
             e.preventDefault()
-            $.ajax({
-                url: "../controllers/kategori.php",
-                type: "post",
-                data: {
-                    type: "update",
-                    id: currentId,
-                    nama_kategori: $("#editNama").val(),
-                    tipe: $("input[name='editTipe']:checked").val()
-                },
-                success: function(data) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Update Success !',
-                        showConfirmButton: false,
-                        timer: 1500
-                    })
-                    setTimeout(function() {
-                        window.location.reload(1);
-                    }, 1600);
-                },
-                error: function(data) {
-                    swalWithBootstrapButtons.fire(
-                        'Gagal!',
-                        'Failed to delete your file.',
-                        'error'
-                    );
-                }
-            })
+            let nama_kategori = $('#nama').val()
+            let tipe = $("input[name='tipe']:checked").val();
+            if ($("#editNama").val() == '') {
+                Swal.fire(
+                    "Peringatan!",
+                    'Pastikan Semua Data sudah terisi',
+                    'warning'
+                );
+            } else {
+                $.ajax({
+                    url: "../controllers/kategori.php",
+                    type: "post",
+                    data: {
+                        type: "update",
+                        id: currentId,
+                        nama_kategori: $("#editNama").val(),
+                        tipe: $("input[name='editTipe']:checked").val()
+                    },
+                    success: function(data) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil mengubah kategori!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                        setTimeout(function() {
+                            window.location.reload(1);
+                        }, 1600);
+                    },
+                    error: function(data) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal mengubah kategori!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                })
+            }
         })
 
         function editAction(id) {
@@ -274,11 +293,12 @@
                     data[0]["tipe"] == "pengeluaran" ? $("#radio1").prop("checked", true) : $("#radio2").prop("checked", true)
                 },
                 error: function(data) {
-                    swalWithBootstrapButtons.fire(
-                        'Gagal!',
-                        'Failed to delete your file.',
-                        'error'
-                    );
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal mengambil data!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
                 }
             })
         }

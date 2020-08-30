@@ -1,32 +1,14 @@
 $(document).ready(function () {
-  $(".gantiPassword").hide();
-
-  $("#togglePass").click(function () {
-    if ($(this).prop("checked") == true) {
-      $(".gantiPassword").show();
-    } else if ($(this).prop("checked") == false) {
-      $(".gantiPassword").hide();
-      $("#old-password").val("");
-      $("#new-password").val("");
-    }
-  });
 
   function deleteAction(id) {
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: "btn btn-success",
-        cancelButton: "btn btn-danger",
-      },
-      buttonsStyling: false,
-    });
     Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      title: "Apakah anda yakin?",
+      text: "Anda tidak akan dapat mengembalikan ini!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Ya, hapus!",
     }).then((result) => {
       if (result.value) {
         $.ajax({
@@ -37,21 +19,24 @@ $(document).ready(function () {
             type: "delete",
           },
           success: function (data) {
-            swalWithBootstrapButtons.fire(
-              "Deleted!",
-              "Your data has been deleted.",
-              "success"
-            );
+            Swal.fire({
+              icon: "success",
+              title: "Data berhasil dihapus",
+              showConfirmButton: false,
+              timer: 1500,
+            });
             setTimeout(function () {
               window.location.reload(1);
             }, 1600);
           },
           error: function (data) {
-            swalWithBootstrapButtons.fire(
-              "Gagal!",
-              "Failed to delete your data.",
-              "error"
-            );
+            Swal.fire({
+              icon: "error",
+              title: "Data gagal dihapus",
+              text: "Data gagal dihapus!",
+              showConfirmButton: false,
+              timer: 1500,
+            });
           },
         });
       }
@@ -71,38 +56,44 @@ $(document).ready(function () {
       oldPassword: $("#old-password").val(),
       newPassword: $("#new-password").val(),
     };
-    $.ajax({
-      url: "../controllers/pengguna.php",
-      type: "post",
-      data,
-      success: function (data) {
-        if (data.status == "success") {
-          Swal.fire({
-            icon: "success",
-            title: "Update Success !",
-            showConfirmButton: false,
-            timer: 1500,
-          });
-          setTimeout(function () {
-            window.location.reload(1);
-          }, 1600);
-        } else if (data.status == "error") {
+    if (!data.nama == "") {
+      $.ajax({
+        url: "../controllers/pengguna.php",
+        type: "post",
+        data,
+        success: function (data) {
+          console.log(data);
+
+          if (data.status == "success") {
+            Swal.fire({
+              icon: "success",
+              title: "Berhasil mengubah data!",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            setTimeout(function () {
+              window.location.reload(1);
+            }, 1600);
+          } else if (data.status == "error") {
+            Swal.fire({
+              icon: "error",
+              title: "Gagal mengubah data!",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+          }
+        },
+        error: function (data) {
           Swal.fire({
             icon: "error",
-            title: "Update Failed!",
+            title: "Update Failed !",
             showConfirmButton: false,
             timer: 1500,
           });
-        }
-      },
-      error: function (data) {
-        Swal.fire({
-          icon: "error",
-          title: "Update Failed !",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-      },
-    });
+        },
+      });
+    }else{
+      Swal.fire("Peringatan!", "Pastikan Semua Data sudah terisi", "warning");
+    }
   });
 });

@@ -5,7 +5,10 @@ if (!isset($_SESSION["idPengguna"])) {
 }
 ?>
 <nav class="navbar navbar-expand-lg navbar-dark shadow" style="background-color: #94A7DB;">
-    <a class="navbar-brand" href="#">UANGKU</a>
+    <a class="navbar-brand" href="#">
+        <img src="../assets/icon.png" width="30" height="30" class="d-inline-block align-top" alt="" loading="lazy">
+        UANGKU
+    </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -15,7 +18,10 @@ if (!isset($_SESSION["idPengguna"])) {
                 <a class="nav-link" href="../beranda/index.php">Beranda<span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Laporan</a>
+                <a class="nav-link" href="../beranda/hutang.php">Hutang/Piutang</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../beranda/laporan.php">Laporan</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="../beranda/kategori.php">Kategori</a>
@@ -50,10 +56,6 @@ if (!isset($_SESSION["idPengguna"])) {
                         <label for="ubah-nama">Nama</label>
                         <input type="text" class="form-control" id="ubah-nama" value="<?= $_SESSION["nama"] ?>">
                     </div>
-                    <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" id="togglePass">
-                        <label class="custom-control-label" for="togglePass">Ubah kata sandi?</label>
-                    </div>
                     <div class="gantiPassword">
                         <div class="form-group">
                             <label for="old-password">Kata Sandi Lama</label>
@@ -71,7 +73,7 @@ if (!isset($_SESSION["idPengguna"])) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="ubah-pengguna">Save changes</button>
+                    <button type="button" class="btn btn-primary" id="ubah-pengguna">Simpan</button>
                 </div>
             </form>
         </div>

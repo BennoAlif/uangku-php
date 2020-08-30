@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beranda</title>
+    <title>Laporan</title>
     <link rel="icon" type="image/png" href="../assets/icon.png"/>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
@@ -17,191 +17,26 @@
 
 <body style="background-color: #F2F4FA;">
     <?php include_once("./components/navbar.php") ?>
-    <div class="container-fluid py-4">
+    <div class="container py-4">
         <div class="row">
-            <div class="col-12 col-md-5 col-lg-4 mb-4">
+            <?php
+            include_once("../auth/functions.php");
+            $db = dbConnect();
+            $idPengguna = $_SESSION['idPengguna'];
+            $month = date('m');
+            $dateNow = date('Y-m-d');
+            ?>
+            <div class="col-12">
                 <div class="p-3 rounded-lg shadow-lg">
-                    <h3>Semua Transaksi</h3>
-                    <p class="mb-3">Meliputi semua bulan.</p>
-                    <?php
-                    include_once("../auth/functions.php");
-                    $db = dbConnect();
-                    $idPengguna = $_SESSION['idPengguna'];
-                    $month = date('m');
-                    $dateNow = date('Y-m-d');
-
-                    if ($db->connect_errno == 0) {
-                        $sql = "SELECT SUM(nominal) AS nominal, jenis FROM transaksi WHERE id_user = $idPengguna GROUP BY jenis ORDER BY jenis";
-                        $res = $db->query($sql);
-                        if ($res) {
-                            $data = $res->fetch_all(MYSQLI_ASSOC);
-                            $jumlah = 0;
-                            $peng = 0;
-                            $pem = 0;
-                            if ($data) {
-                                if (isset($data[1])) {
-                                    $peng = $data[0]["jenis"] == "pengeluaran" ? $data[0]["nominal"] : $data[1]["nominal"];
-                                    $pem = $data[0]["jenis"] == "pemasukan" ? $data[0]["nominal"] : $data[1]["nominal"];
-                                    $jumlah = $data[0]["nominal"] - $data[1]["nominal"];
-                                } else if (isset($data[0])) {
-                                    $peng = $data[0]["jenis"] == "pengeluaran" ? $data[0]["nominal"] : 0;
-                                    $pem = $data[0]["jenis"] == "pemasukan" ? $data[0]["nominal"] : 0;
-                                    $jumlah = $data[0]["jenis"] == "pengeluaran" ? 0 - $data[0]["nominal"] : $data[0]["nominal"];
-                                } else {
-                                    $jumlah = 0;
-                                }
-                            }
-                    ?>
-                            <div class="row">
-                                <div class="col-6">
-                                    <small>Pemasukan</small>
-                                </div>
-                                <div class="col-6">
-                                    <h4 class="text-right text-success"><?= rupiah($pem) ?></h4>
-                                </div>
-                                <div class="col-6">
-                                    <small>Pengeluaran</small>
-                                </div>
-                                <div class="col-6">
-                                    <h4 class="text-right my-text-danger"><?= rupiah($peng) ?></h4>
-                                </div>
-                            </div>
-                            <hr />
-                            <h3 class="text-right text-primary mb-4"><?= rupiah($jumlah) ?></h3>
-                    <?php
-                        }
-                    }
-                    ?>
-                    <button type="button" class="btn btn-danger btn-block" data-target="#expenseModal" data-toggle="modal">Tambah Pengeluaran</button>
-                    <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#incomeModal">Tambah Pemasukan</button>
-
-                    <div class="modal fade" id="expenseModal" tabindex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Tambah Pengeluaran</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <form>
-                                    <div class="modal-body">
-                                        <div class="form-group">
-                                            <label for="nominal">Nominal</label>
-                                            <input type="number" class="form-control" id="nominal" placeholder="Contoh: 20000">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="date">Tanggal</label>
-                                            <input type="date" class="form-control" id="date">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="category">Kategori</label>
-                                            <?php
-                                            if ($db->connect_errno == 0) {
-                                                $sql = "SELECT * FROM kategori WHERE tipe = 'pengeluaran'";
-                                                $res = $db->query($sql);
-                                                if ($res) {
-                                            ?>
-                                                    <select class="form-control" id="category">
-                                                        <option>Pilih kategori...</option>
-                                                        <?php
-                                                        $data = $res->fetch_all(MYSQLI_ASSOC);
-                                                        foreach ($data as $val) {
-                                                        ?>
-                                                            <option value="<?= $val["id"] ?>"><?= $val["nama_kategori"] ?></option>
-                                                        <?php
-                                                        }
-                                                        ?>
-                                                    </select>
-                                            <?php
-                                                    $res->free();
-                                                } else
-                                                    echo "Gagal eksekusi SQL";
-                                            } else
-                                                echo "Gagal Koneksi";
-                                            ?>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="catatan">Catatan</label>
-                                            <textarea class="form-control" id="catatan" rows="3" placeholder="Contoh: Makan nasi padang"></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                                        <button type="button" id="simpanOutcome" class="btn btn-primary">Simpan</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                    <h3 class="mb-4">Detail Semua Transaksi</h3>
+                    <div class="form-group" style="max-width: 240px;">
+                        <label for="monthInput">Filter bulan</label>
+                        <input type="month" class="form-control" id="monthInput">
                     </div>
-
-                    <div class="modal fade" id="incomeModal" tabindex="-1" aria-labelledby="incomeModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="incomeModalLabel">Tambah Pemasukan</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <form>
-                                    <div class="modal-body">
-                                        <div class="form-group">
-                                            <label for="nominalIncome">Nominal</label>
-                                            <input type="number" class="form-control" id="nominalIncome" placeholder="Contoh: 20000">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="dateIncome">Tanggal</label>
-                                            <input type="date" class="form-control" id="dateIncome">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="categoryIncome">Kategori</label>
-                                            <?php
-                                            if ($db->connect_errno == 0) {
-                                                $sql = "SELECT * FROM kategori WHERE tipe = 'pemasukan'";
-                                                $res = $db->query($sql);
-                                                if ($res) {
-                                            ?>
-                                                    <select class="form-control" id="categoryIncome">
-                                                        <option>Pilih kategori...</option>
-                                                        <?php
-                                                        $data = $res->fetch_all(MYSQLI_ASSOC);
-                                                        foreach ($data as $val) {
-                                                        ?>
-                                                            <option value="<?= $val["id"] ?>"><?= $val["nama_kategori"] ?></option>
-                                                        <?php
-                                                        }
-                                                        ?>
-                                                    </select>
-                                            <?php
-                                                    $res->free();
-                                                } else
-                                                    echo "Gagal eksekusi SQL";
-                                            } else
-                                                echo "Gagal Koneksi";
-                                            ?>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="catatanIncome">Catatan</label>
-                                            <textarea class="form-control" id="catatanIncome" rows="3" placeholder="Contoh: Makan nasi padang"></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                        <button type="button" id="simpanIncome" class="btn btn-primary">Simpan</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-7 col-lg-8">
-                <div class="p-3 rounded-lg shadow-lg">
-                    <h3 class="mb-4">Detail Transaksi Bulan <?= date('F Y'); ?></h3>
+                    <button type="button" class="btn btn-info mb-5 cetakLaporan">Cetak Laporan Per Bulan</button>
                     <?php
                     if ($db->connect_errno == 0) {
-                        $sql = "SELECT transaksi.id, nominal, jenis, tanggal, catatan, nama_kategori, tipe FROM transaksi JOIN kategori ON transaksi.id_kategori = kategori.id WHERE id_user = '$idPengguna' AND MONTH(tanggal) = '$month'";
+                        $sql = "SELECT transaksi.id, nominal, jenis, tanggal, catatan, nama_kategori, tipe FROM transaksi JOIN kategori ON transaksi.id_kategori = kategori.id WHERE id_user = '$idPengguna'";
                         $res = $db->query($sql);
                         if ($res) {
                     ?>
@@ -371,6 +206,9 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/rowreorder/1.2.7/js/dataTables.rowReorder.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.2.5/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.9/jspdf.plugin.autotable.min.js" integrity="sha512-6oCyRRRdXAgfXITH/5iavIaxb2x6QO8diA4/VgWBlin77Z07IPjzJPyrQ4+22zyd58pE5q/ma/ogHtlG/2gdPg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js" integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg==" crossorigin="anonymous"></script>
     <script>
         let namaPengguna = '<?= $_SESSION["nama"] ?>';
         let idPengguna = '<?= $_SESSION["idPengguna"] ?>';
@@ -380,13 +218,135 @@
     <script>
         $(document).ready(function() {
             let currentId
-            $('#table_id').DataTable({
+            let month = $("#monthInput").val()
+
+            const columns = [{
+                    title: "Tanggal",
+                    dataKey: "tanggal"
+                },
+                {
+                    title: "Nominal (Rp.)",
+                    dataKey: "nominal"
+                },
+                {
+                    title: "Jenis",
+                    dataKey: "jenis"
+                },
+                {
+                    title: "Kategori",
+                    dataKey: "nama_kategori"
+                },
+                {
+                    title: "Catatan",
+                    dataKey: "catatan"
+                },
+            ];
+            $("#monthInput").change(function() {
+                month = $("#monthInput").val()
+            })
+            let table = $('#table_id').DataTable({
                 rowReorder: {
                     selector: 'td:nth-child(2)'
                 },
                 responsive: true
             });
+            $('#monthInput').change(function() {
+                table.search($(this).val()).draw();
+            })
+
+            $(".cetakLaporan").on("click", function() {
+                !month ? month = '<?= date("Y-m") ?>' : month;
+                $.ajax({
+                    url: "../controllers/pengeluaran.php",
+                    method: "post",
+                    data: {
+                        type: "getByMonth",
+                        id: idPengguna,
+                        month
+                    },
+                    success: function(data) {
+                        let datas = JSON.parse(data)
+                        let totalPemasukan = hitungTotalPemasukan(datas)
+                        let totalPengeluaran = hitungTotalPengeluaran(datas)
+                        let rupiahPemasukan = rupiahFormat(totalPemasukan)
+                        let rupiahPengeluaran = rupiahFormat(totalPengeluaran)
+                        const doc = new jsPDF("p", "pt");
+                        doc.setDrawColor(0)
+                        doc.setFillColor(148, 167, 219)
+                        doc.rect(0, 0, 800, 56, 'F')
+                        doc.setFontSize(24)
+                        doc.setTextColor(255, 255, 255)
+                        doc.text('UANGKU', 20, 30)
+                        doc.setFontSize(10)
+                        doc.text('Sistem Informasi Anda', 20, 45)
+                        doc.setFontSize(24)
+                        doc.setFontType('bold');
+                        doc.setTextColor(0, 0, 0)
+                        doc.text('Laporan Keuangan', 40, 90)
+                        doc.setFontSize(11)
+                        doc.setTextColor(100)
+                        doc.setFontType('normal');
+                        doc.text("Periode : " + moment(month).format('MMMM YYYY'), 40, 110)
+                        doc.text("Pemilik : <?= $_SESSION["nama"] ?>", 40, 130)
+                        doc.text("Email : <?= $_SESSION["email"] ?>", 40, 150)
+                        doc.setTextColor(40, 170, 100)
+                        doc.setFontType('bold');
+                        doc.text("Total Pemasukan : " + rupiahPemasukan, 40, 170)
+                        doc.setTextColor(231, 76, 60)
+                        doc.text("Total Pengeluaran : " + rupiahPengeluaran, 40, 190)
+
+                        doc.autoTable(columns, datas, {
+                            didParseCell: function(data) {
+                                if (data.cell.raw == "pemasukan") {
+                                    data.cell.styles.fillColor = [40, 170, 100]
+                                    data.cell.styles.textColor = [255, 255, 255]
+                                } else if (data.cell.raw == "pengeluaran") {
+                                    data.cell.styles.fillColor = [231, 76, 60]
+                                    data.cell.styles.textColor = [255, 255, 255]
+                                }
+                            },
+                            margin: {
+                                top: 210
+                            },
+                        });
+                        doc.save(`Laporan keuangan bulan ${moment(month).format('MMMM YYYY')}`)
+                    }
+                })
+            })
         });
+
+        function rupiahFormat(data) {
+            const formatter = new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                minimumFractionDigits: 2,
+            });
+            return formatter.format(data);
+        }
+
+        function hitungTotalPemasukan(data) {
+            return filterDataPemasukan(data).reduce(function(prev, cur) {
+                return prev + parseInt(cur.nominal);
+            }, 0);
+        }
+
+        function hitungTotalPengeluaran(data) {
+            return filterDataPengeluaran(data).reduce(function(prev, cur) {
+                return prev + parseInt(cur.nominal);
+            }, 0);
+        }
+
+        function filterDataPengeluaran(data) {
+            return data.filter(function(e) {
+                return e.jenis == "pengeluaran"
+            })
+        }
+
+        function filterDataPemasukan(data) {
+            return data.filter(function(e) {
+                return e.jenis == "pemasukan"
+            })
+        }
 
         function deleteAction(id) {
             Swal.fire({
@@ -437,53 +397,6 @@
             deleteAction($(this).data("id"));
         })
 
-        $("#simpanOutcome").on("click", function(e) {
-            e.preventDefault()
-            let nominal = $("#nominal").val()
-            let tanggal = $("#date").val()
-            let id_kategori = $("#category").val()
-            let catatan = $("#catatan").val()
-            let id_user = <?= $_SESSION["idPengguna"]; ?>;
-            if (nominal == '' || tanggal == '' || id_kategori === 'Pilih kategori...') {
-                Swal.fire(
-                    "Peringatan!",
-                    'Pastikan Semua Data sudah terisi',
-                    'warning'
-                );
-            } else {
-                $.ajax({
-                    url: "../controllers/pengeluaran.php",
-                    type: "post",
-                    data: {
-                        type: "create",
-                        nominal,
-                        tanggal,
-                        id_kategori,
-                        catatan,
-                        id_user
-                    },
-                    success: function(data) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Transaksi berhasil disimpan',
-                            showConfirmButton: false,
-                            timer: 1500
-                        })
-                        setTimeout(function() {
-                            window.location.reload(1);
-                        }, 1600);
-                    },
-                    error: function(data) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal menyimpan transaksi!',
-                            showConfirmButton: false,
-                            timer: 1500
-                        })
-                    }
-                })
-            }
-        })
 
         function editAction(id) {
             $.ajax({
@@ -579,54 +492,6 @@
                 id_kategori: $("#ubahCategoryPemasukan").val(),
             }
             updateAction(data)
-        })
-
-        $("#simpanIncome").on("click", function(e) {
-            e.preventDefault()
-            let nominal = $("#nominalIncome").val()
-            let tanggal = $("#dateIncome").val()
-            let id_kategori = $("#categoryIncome").val()
-            let catatan = $("#catatanIncome").val()
-            let id_user = <?= $_SESSION["idPengguna"]; ?>;
-            if (nominal == '' || tanggal == '' || id_kategori === 'Pilih kategori...') {
-                Swal.fire(
-                    "Peringatan!",
-                    'Pastikan Semua Data sudah terisi',
-                    'warning'
-                );
-            } else {
-                $.ajax({
-                    url: "../controllers/pemasukan.php",
-                    type: "post",
-                    data: {
-                        type: "create",
-                        nominal,
-                        tanggal,
-                        id_kategori,
-                        catatan,
-                        id_user
-                    },
-                    success: function(data) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Transaksi berhasil disimpan',
-                            showConfirmButton: false,
-                            timer: 1500
-                        })
-                        setTimeout(function() {
-                            window.location.reload(1);
-                        }, 1600);
-                    },
-                    error: function(data) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal menyimpan transaksi!',
-                            showConfirmButton: false,
-                            timer: 1500
-                        })
-                    }
-                })
-            }
         })
     </script>
 </body>

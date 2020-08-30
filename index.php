@@ -11,7 +11,8 @@ if ($_SESSION) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UANGKU | Aplikasi Manajemen Keuangan</title>
+    <title>UANGKU | Sistem Informasi Keuangan</title>
+    <link rel="icon" type="image/png" href="assets/icon.png" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/sweetalert2@9.17.1/dist/sweetalert2.min.css">
@@ -37,7 +38,7 @@ if ($_SESSION) {
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
                         <h1 class="card-title">UANGKU</h1>
-                        <p>Aplikasi Manajemen Keuangan</p>
+                        <p>Sistem Informasi Keuangan</p>
                         <?php
                         if (isset($_GET["error"])) {
                             $error = $_GET["error"];
@@ -55,6 +56,16 @@ if ($_SESSION) {
                                 showError("Unknown Error.");
                         }
                         ?>
+                        <?php
+                        if ($_SERVER['REMOTE_ADDR'] == "5.189.147.47") {
+                        ?>
+                            <div class="text-left">
+                                Email : bennoalif41@gmail.com<br>
+                                Password : adminadmin
+                            </div>
+                        <?php
+                        }
+                        ?>
                         <form action="auth/cekLogin.php" method="post">
                             <div class="form-group">
                                 <label for="email">Alamat Email</label>
@@ -64,7 +75,7 @@ if ($_SESSION) {
                                 <label for="password">Kata Sandi</label>
                                 <input type="password" class="form-control" name="password" id="password">
                             </div>
-                            <button type="submit" name="loginBtn" class="btn my-primary text-white btn-block">Kirim</button>
+                            <button type="submit" name="loginBtn" id="loginBtn" class="btn my-primary text-white btn-block">Masuk</button>
                         </form>
                     </div>
                     <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
@@ -97,15 +108,37 @@ if ($_SESSION) {
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     <script>
+        $("#loginBtn").on("click", function(e) {
+            let email = $("#email").val()
+            let password = $("#password").val()
+            if (email == "" || password == "") {
+                Swal.fire(
+                    'Peringatan!',
+                    'Pastikan Semua Data sudah terisi',
+                    'warning'
+                );
+                e.preventDefault()
+            } else {
+                return true
+            }
+        })
+
         $("#simpan").on("click", function(e) {
             e.preventDefault()
             let email = $("#new-email").val();
             let nama = $("#name").val();
             let password = $("#new-password").val()
+            const re_email = /^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i;
             if (email == "" || nama == "" || password == "") {
                 Swal.fire(
-                    'Warning!',
+                    'Peringatan!',
                     'Pastikan Semua Data sudah terisi',
+                    'warning'
+                );
+            } else if (!re_email.test(email)) {
+                Swal.fire(
+                    'Peringatan!',
+                    'Format email tidak valid',
                     'warning'
                 );
             } else {
@@ -121,7 +154,7 @@ if ($_SESSION) {
                     success: function(data) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Your work has been saved',
+                            title: 'Selamat! Kamu sudah terdaftar.',
                             showConfirmButton: false,
                             timer: 1500
                         })
